@@ -185,7 +185,12 @@
     - Update statistics and record history
   - _Requirements: 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 8.4, 8.5_
 
-- [ ] 14. Implement CLI interface and entry point
+- [x] 14. Implement CLI interface and entry point
+
+
+
+
+
   - Create index.js entry point
   - Implement command-line interface to launch simulation
   - Add command to specify custom configuration file
@@ -193,7 +198,9 @@
   - Add controls for pause/resume/speed adjustment
   - _Requirements: 6.3, 6.4, 6.5_
 
+
 - [ ] 15. Wire everything together and add error handling
+
   - Integrate all modules into SimulationEngine
   - Add error handling for configuration errors (invalid bounds, missing files, malformed JSON)
   - Implement runtime error handling (population extinction, property overflow, invalid state)
