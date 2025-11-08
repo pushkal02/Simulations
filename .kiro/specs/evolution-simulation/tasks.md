@@ -135,14 +135,29 @@
   - Implement getPopulationTrends() for variant-specific trends
   - _Requirements: 9.1, 9.2, 9.3, 9.5, 9.6, 9.7_
 
-- [ ] 11. Integrate statistics into Population class
+- [x] 11. Integrate statistics into Population class
+
+
+
+
+
   - Add statistics and history properties to Population
   - Implement updateStatistics() to calculate generation stats
   - Add recordHistory() to save snapshots
   - Implement getHistory() to retrieve historical data
   - _Requirements: 9.2, 9.3_
 
-- [ ] 12. Implement configuration loader
+- [x] 12. Implement configuration loader
+
+
+
+
+
+
+
+
+
+
   - Create ConfigLoader module
   - Implement loadConfig() to read and parse JSON
   - Add mergeWithDefaults() to combine user config with defaults
