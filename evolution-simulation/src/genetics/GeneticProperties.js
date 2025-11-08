@@ -52,8 +52,21 @@ export function clampProperty(name, value) {
     return value;
   }
   
+  // Handle invalid numeric values
+  if (!Number.isFinite(value)) {
+    console.error(`Invalid value for property ${name}: ${value}, using default`);
+    return DEFAULT_VALUES[name] || 0.5;
+  }
+  
   const bounds = PROPERTY_BOUNDS[name];
-  return Math.max(bounds.min, Math.min(bounds.max, value));
+  const clamped = Math.max(bounds.min, Math.min(bounds.max, value));
+  
+  // Warn if clamping occurred
+  if (clamped !== value) {
+    console.warn(`Property ${name} value ${value} clamped to ${clamped}`);
+  }
+  
+  return clamped;
 }
 
 /**
@@ -78,31 +91,41 @@ export function generateRandom(propertyName, range = null) {
  * @param {string} roleType - Optional role type identifier (for future use)
  * @param {Object} config - Configuration object with genetic property settings
  * @returns {Object} - Complete genetics object with all properties
+ * @throws {Error} If configuration is invalid
  */
 export function createGeneticProfile(roleType = null, config = {}) {
-  const genetics = {};
-  const mode = config.simulation?.initialMode || 'randomized';
-  const propertyConfigs = config.genetics?.properties || {};
-  
-  // Generate each genetic property
-  for (const propertyName in PROPERTY_BOUNDS) {
-    const propertyConfig = propertyConfigs[propertyName];
+  try {
+    const genetics = {};
+    const mode = config.simulation?.initialMode || 'randomized';
+    const propertyConfigs = config.genetics?.properties || {};
     
-    if (mode === 'fixed') {
-      // Use configured default value or system default
-      genetics[propertyName] = propertyConfig?.default || DEFAULT_VALUES[propertyName];
-    } else {
-      // Generate random value within configured or default bounds
-      const range = propertyConfig ? 
-        { min: propertyConfig.min, max: propertyConfig.max } : 
-        PROPERTY_BOUNDS[propertyName];
+    // Generate each genetic property
+    for (const propertyName in PROPERTY_BOUNDS) {
+      const propertyConfig = propertyConfigs[propertyName];
       
-      genetics[propertyName] = generateRandom(propertyName, range);
+      if (mode === 'fixed') {
+        // Use configured default value or system default
+        genetics[propertyName] = propertyConfig?.default || DEFAULT_VALUES[propertyName];
+      } else {
+        // Generate random value within configured or default bounds
+        const range = propertyConfig ? 
+          { min: propertyConfig.min, max: propertyConfig.max } : 
+          PROPERTY_BOUNDS[propertyName];
+        
+        // Validate range
+        if (range.min > range.max) {
+          throw new Error(`Invalid range for ${propertyName}: min (${range.min}) > max (${range.max})`);
+        }
+        
+        genetics[propertyName] = generateRandom(propertyName, range);
+      }
+      
+      // Ensure value is within bounds
+      genetics[propertyName] = clampProperty(propertyName, genetics[propertyName]);
     }
     
-    // Ensure value is within bounds
-    genetics[propertyName] = clampProperty(propertyName, genetics[propertyName]);
+    return genetics;
+  } catch (error) {
+    throw new Error(`Failed to create genetic profile: ${error.message}`);
   }
-  
-  return genetics;
 }

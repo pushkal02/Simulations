@@ -13,13 +13,32 @@ export class Piro {
    * @param {Object} genetics - Genetic properties object
    * @param {Object} config - Simulation configuration
    * @param {string} id - Optional unique identifier (generated if not provided)
+   * @throws {Error} If genetics or config are invalid
    */
   constructor(genetics, config, id = null) {
-    this.id = id || `piro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Validate inputs
+    if (!genetics || typeof genetics !== 'object') {
+      throw new Error('Genetics object is required');
+    }
+    
+    if (!config || typeof config !== 'object') {
+      throw new Error('Configuration object is required');
+    }
+    
+    this.id = id || `piro_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     this.genetics = { ...genetics };
     this.variantId = this.generateVariantId();
     this.age = 0;
-    this.resources = config.resources?.initialAmount || 100;
+    
+    const initialAmount = config.resources?.initialAmount;
+    if (initialAmount === undefined || initialAmount < 0) {
+      throw new Error(`Invalid initial resource amount: ${initialAmount}`);
+    }
+    this.resources = initialAmount;
+    
+    if (!Number.isFinite(this.genetics.replicationRate) || this.genetics.replicationRate <= 0) {
+      throw new Error(`Invalid replication rate: ${this.genetics.replicationRate}`);
+    }
     this.replicationTimer = this.genetics.replicationRate;
     this.isAlive = true;
   }
@@ -90,16 +109,26 @@ export class Piro {
    * @returns {string} - Hash identifier for this genetic variant
    */
   generateVariantId() {
-    // Sort properties to ensure consistent hashing
-    const sortedGenetics = Object.keys(this.genetics)
-      .sort()
-      .reduce((acc, key) => {
-        // Round to 4 decimal places to group similar genetics
-        acc[key] = Math.round(this.genetics[key] * 10000) / 10000;
-        return acc;
-      }, {});
-    
-    const geneticsString = JSON.stringify(sortedGenetics);
-    return crypto.createHash('md5').update(geneticsString).digest('hex').substr(0, 8);
+    try {
+      // Sort properties to ensure consistent hashing
+      const sortedGenetics = Object.keys(this.genetics)
+        .sort()
+        .reduce((acc, key) => {
+          // Round to 4 decimal places to group similar genetics
+          const value = this.genetics[key];
+          if (!Number.isFinite(value)) {
+            throw new Error(`Invalid genetic value for ${key}: ${value}`);
+          }
+          acc[key] = Math.round(value * 10000) / 10000;
+          return acc;
+        }, {});
+      
+      const geneticsString = JSON.stringify(sortedGenetics);
+      return crypto.createHash('md5').update(geneticsString).digest('hex').substring(0, 8);
+    } catch (error) {
+      console.error(`Error generating variant ID: ${error.message}`);
+      // Return a random ID as fallback
+      return `err_${Math.random().toString(36).substring(2, 10)}`;
+    }
   }
 }

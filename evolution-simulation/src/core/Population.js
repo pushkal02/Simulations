@@ -15,23 +15,51 @@ export class Population {
    * @param {number} initialSize - Number of Piros to create initially
    * @param {Object} baseGenetics - Base genetic properties for initial population
    * @param {Object} config - Simulation configuration
+   * @throws {Error} If population creation fails
    */
   constructor(initialSize, baseGenetics, config) {
+    // Validate inputs
+    if (!Number.isInteger(initialSize) || initialSize < 1) {
+      throw new Error(`Invalid initial population size: must be a positive integer, got ${initialSize}`);
+    }
+    
+    if (!config || typeof config !== 'object') {
+      throw new Error('Configuration object is required');
+    }
+    
     this.piros = [];
     this.generation = 0;
     this.statistics = {};
     this.history = [];
     this.config = config;
 
-    // Create initial population
+    // Create initial population with error handling
+    let successCount = 0;
+    const errors = [];
+    
     for (let i = 0; i < initialSize; i++) {
-      const genetics = baseGenetics || createGeneticProfile(null, config);
-      const piro = new Piro(genetics, config);
-      
-      // Register the variant
-      registerVariant(piro.variantId, piro.genetics);
-      
-      this.piros.push(piro);
+      try {
+        const genetics = baseGenetics || createGeneticProfile(null, config);
+        const piro = new Piro(genetics, config);
+        
+        // Register the variant
+        registerVariant(piro.variantId, piro.genetics);
+        
+        this.piros.push(piro);
+        successCount++;
+      } catch (error) {
+        errors.push(`Piro ${i}: ${error.message}`);
+      }
+    }
+    
+    // If we couldn't create any Piros, throw an error
+    if (successCount === 0) {
+      throw new Error(`Failed to create initial population. Errors: ${errors.join('; ')}`);
+    }
+    
+    // Warn if some Piros failed to create
+    if (errors.length > 0) {
+      console.warn(`Created ${successCount}/${initialSize} Piros. ${errors.length} failed.`);
     }
   }
 
@@ -151,21 +179,35 @@ export class Population {
    * Calculates and stores statistics for the current generation
    */
   updateStatistics() {
-    const livingPiros = this.getAll();
-    
-    this.statistics = {
-      generation: this.generation,
-      totalPopulation: livingPiros.length,
-      populationByVariant: this.getPopulationByVariant(),
-      uniqueVariants: Object.keys(this.getPopulationByVariant()).length,
-      averageGenetics: this.getAverageStats(),
-      averageResources: livingPiros.length > 0 
-        ? livingPiros.reduce((sum, piro) => sum + piro.resources, 0) / livingPiros.length 
-        : 0,
-      averageAge: livingPiros.length > 0
-        ? livingPiros.reduce((sum, piro) => sum + piro.age, 0) / livingPiros.length
-        : 0
-    };
+    try {
+      const livingPiros = this.getAll();
+      
+      this.statistics = {
+        generation: this.generation,
+        totalPopulation: livingPiros.length,
+        populationByVariant: this.getPopulationByVariant(),
+        uniqueVariants: Object.keys(this.getPopulationByVariant()).length,
+        averageGenetics: this.getAverageStats(),
+        averageResources: livingPiros.length > 0 
+          ? livingPiros.reduce((sum, piro) => sum + piro.resources, 0) / livingPiros.length 
+          : 0,
+        averageAge: livingPiros.length > 0
+          ? livingPiros.reduce((sum, piro) => sum + piro.age, 0) / livingPiros.length
+          : 0
+      };
+    } catch (error) {
+      console.error(`Error updating statistics: ${error.message}`);
+      // Provide minimal statistics on error
+      this.statistics = {
+        generation: this.generation,
+        totalPopulation: 0,
+        populationByVariant: {},
+        uniqueVariants: 0,
+        averageGenetics: {},
+        averageResources: 0,
+        averageAge: 0
+      };
+    }
   }
 
   /**

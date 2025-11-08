@@ -69,10 +69,10 @@ function mergeWithDefaults(defaults, userConfig) {
 }
 
 /**
- * Validate that required configuration parameters exist
+ * Validate that required configuration parameters exist and have valid values
  * @param {Object} config - Configuration object to validate
  * @returns {boolean} True if valid
- * @throws {Error} If required parameters are missing
+ * @throws {Error} If required parameters are missing or invalid
  */
 function validateConfig(config) {
   const requiredPaths = [
@@ -87,11 +87,75 @@ function validateConfig(config) {
     'survival.threshold'
   ];
   
+  // Check for missing required parameters
   for (const pathStr of requiredPaths) {
     const value = getConfigValue(config, pathStr);
     if (value === undefined || value === null) {
       throw new Error(`Missing required configuration parameter: ${pathStr}`);
     }
+  }
+  
+  // Validate numeric ranges and constraints
+  const initialPop = config.simulation.initialPopulation;
+  if (typeof initialPop !== 'number' || initialPop < 1 || !Number.isInteger(initialPop)) {
+    throw new Error(`Invalid initialPopulation: must be a positive integer, got ${initialPop}`);
+  }
+  
+  const cyclesPerSecond = config.simulation.cyclesPerSecond;
+  if (typeof cyclesPerSecond !== 'number' || cyclesPerSecond < 1 || cyclesPerSecond > 1000) {
+    throw new Error(`Invalid cyclesPerSecond: must be between 1 and 1000, got ${cyclesPerSecond}`);
+  }
+  
+  const maxPopulation = config.simulation.maxPopulation;
+  if (maxPopulation !== undefined && (typeof maxPopulation !== 'number' || maxPopulation < initialPop)) {
+    throw new Error(`Invalid maxPopulation: must be >= initialPopulation (${initialPop}), got ${maxPopulation}`);
+  }
+  
+  // Validate genetic property bounds
+  const properties = config.genetics.properties;
+  for (const propName in properties) {
+    const prop = properties[propName];
+    if (prop.min === undefined || prop.max === undefined) {
+      throw new Error(`Genetic property ${propName} missing min or max bounds`);
+    }
+    if (typeof prop.min !== 'number' || typeof prop.max !== 'number') {
+      throw new Error(`Genetic property ${propName} bounds must be numbers`);
+    }
+    if (prop.min > prop.max) {
+      throw new Error(`Genetic property ${propName} has invalid bounds: min (${prop.min}) > max (${prop.max})`);
+    }
+    if (prop.default !== undefined) {
+      if (typeof prop.default !== 'number') {
+        throw new Error(`Genetic property ${propName} default must be a number`);
+      }
+      if (prop.default < prop.min || prop.default > prop.max) {
+        throw new Error(`Genetic property ${propName} default (${prop.default}) outside bounds [${prop.min}, ${prop.max}]`);
+      }
+    }
+  }
+  
+  // Validate resource values
+  if (config.resources.initialAmount < 0) {
+    throw new Error(`Invalid initialAmount: must be non-negative, got ${config.resources.initialAmount}`);
+  }
+  if (config.resources.gatherRate < 0) {
+    throw new Error(`Invalid gatherRate: must be non-negative, got ${config.resources.gatherRate}`);
+  }
+  if (config.resources.consumptionRate < 0) {
+    throw new Error(`Invalid consumptionRate: must be non-negative, got ${config.resources.consumptionRate}`);
+  }
+  if (config.resources.reproductionCost < 0) {
+    throw new Error(`Invalid reproductionCost: must be non-negative, got ${config.resources.reproductionCost}`);
+  }
+  
+  // Validate lifespan
+  if (config.lifespan.baseLifespan < 1) {
+    throw new Error(`Invalid baseLifespan: must be at least 1, got ${config.lifespan.baseLifespan}`);
+  }
+  
+  // Validate survival threshold
+  if (config.survival.threshold < 0 || config.survival.threshold > 1) {
+    throw new Error(`Invalid survival threshold: must be between 0 and 1, got ${config.survival.threshold}`);
   }
   
   return true;
