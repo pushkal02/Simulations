@@ -10,13 +10,20 @@ Edit: `evolution-simulation/config/default.json`
 {
   "simulation": {
     "initialPopulation": 100,
-    "resourcesPerGeneration": 1000,
     "cyclesPerSecond": 10,
-    "maxAge": 100,
-    "logGenerations": false
+    "maxPopulation": 1000,
+    "initialMode": "randomized"
+  },
+  "resources": {
+    "maxTotalResources": 1000,
+    "replenishmentRate": 1000,
+    "defaultConsumptionRate": 3,
+    "consumptionCanMutate": true,
+    "utilizationCanMutate": true,
+    "ageConsumptionConstant": 300
   },
   "genetics": {
-    "numberOfAttributes": 6,
+    "numberOfAttributes": 8,
     "mutationRate": 0.01,
     "mutationStrength": 0.05,
     "independentMutation": true
@@ -33,26 +40,80 @@ Edit: `evolution-simulation/config/default.json`
 
 | Parameter | Description | Default | Range |
 |-----------|-------------|---------|-------|
-| `initialPopulation` | Starting number of Piros | 100 | 10-10000 |
-| `resourcesPerGeneration` | Resources available each cycle | 1000 | 100-100000 |
+| `initialPopulation` | Starting number of Piros (can be 1) | 100 | 1-10000 |
 | `cyclesPerSecond` | Simulation speed | 10 | 1-1000 |
-| `maxAge` | Maximum age before death | 100 | 10-1000 |
-| `logGenerations` | Console logging | false | true/false |
+| `maxPopulation` | Maximum population cap | 1000 | 100-100000 |
+| `initialMode` | "randomized" or "fixed" genetics | "randomized" | - |
+
+### Resource Parameters
+
+| Parameter | Description | Default | Range |
+|-----------|-------------|---------|-------|
+| `maxTotalResources` | Maximum resources in system | 1000 | 100-100000 |
+| `replenishmentRate` | Resources added per generation | 1000 | 0-10000 |
+| `defaultConsumptionRate` | Default consumption per Piro | 3 | 1-10 |
+| `consumptionCanMutate` | Allow consumption to mutate | true | true/false |
+| `utilizationCanMutate` | Allow utilization to mutate | true | true/false |
+| `ageConsumptionConstant` | Age × Consumption = Constant | 300 | 100-1000 |
 
 ### Genetics Parameters
 
 | Parameter | Description | Default | Range |
 |-----------|-------------|---------|-------|
-| `numberOfAttributes` | Number of genetic traits | 6 | 1-20 |
+| `numberOfAttributes` | Number of genetic traits | 8 | 1-20 |
 | `mutationRate` | Chance of mutation (per attribute) | 0.01 | 0.0-1.0 |
 | `mutationStrength` | How much traits change | 0.05 | 0.0-1.0 |
 | `independentMutation` | Each attribute mutates independently | true | true/false |
+
+**Default Attributes:**
+1. `replicationRate` (0-1): Reproduction speed
+2. `attractiveness` (0-1): Mating appeal
+3. `strength` (0-1): Base strength (boosted by consumption)
+4. `mutationChance` (0-1): Mutation probability
+5. `intelligence` (0-1): Problem solving
+6. `resourceEfficiency` (0-1): Resource gathering
+7. `consumptionRate` (1-10): Resources consumed per generation
+8. `utilizationFactor` (0.1-1.0): Fraction of absorbed resources actually used
 
 ### Variant Parameters
 
 | Parameter | Description | Default | Range |
 |-----------|-------------|---------|-------|
 | `groupingPrecision` | Decimal places for grouping | 2 | 0-4 |
+
+## Resource System
+
+### How It Works
+
+**Global Resource Pool:**
+- Total resources are capped at `maxTotalResources` (default: 1000)
+- Each generation, `replenishmentRate` resources are added (up to the cap)
+- Resources are distributed to Piros based on their effective strength
+- All absorbed resources are removed from the pool
+
+**Consumption & Age:**
+- Each Piro consumes `consumptionRate` resources per generation
+- Maximum age is calculated as: `ageConsumptionConstant / consumptionRate`
+- Lower consumption = longer life, but weaker strength
+- Higher consumption = shorter life, but stronger
+
+**Example:**
+```
+ageConsumptionConstant: 300
+consumptionRate: 3  → maxAge = 100 generations
+consumptionRate: 6  → maxAge = 50 generations
+consumptionRate: 1  → maxAge = 300 generations
+```
+
+**Utilization Factor:**
+- When a Piro absorbs resources, only `utilizationFactor` is actually used
+- The rest is wasted (removed from system but not utilized)
+- Example: Absorb 10 resources with 0.5 utilization = 5 resources gained, 10 removed from pool
+
+**Strength Calculation:**
+- Effective strength = base strength × (0.5 + 0.5 × consumptionRate/10)
+- Higher consumption rate = higher effective strength
+- Strength determines resource distribution share
 
 ## Mutation System
 
@@ -134,16 +195,66 @@ You can configure how many genetic attributes each Piro has:
 
 ## Example Configurations
 
-### High Diversity (Default)
+### Start with 1 Piro
 ```json
 {
-  "genetics": {
-    "numberOfAttributes": 6,
-    "mutationRate": 0.1,
-    "mutationStrength": 0.05
+  "simulation": {
+    "initialPopulation": 1
+  }
+}
+```
+
+### Resource-Scarce Environment
+```json
+{
+  "resources": {
+    "maxTotalResources": 500,
+    "replenishmentRate": 300
+  }
+}
+```
+
+### Long-Lived, Efficient Piros
+```json
+{
+  "resources": {
+    "ageConsumptionConstant": 600,
+    "defaultConsumptionRate": 2
   },
-  "variants": {
-    "groupingPrecision": 2
+  "genetics": {
+    "properties": {
+      "consumptionRate": {
+        "min": 1,
+        "max": 5,
+        "default": 2
+      },
+      "utilizationFactor": {
+        "min": 0.5,
+        "max": 1.0,
+        "default": 0.8
+      }
+    }
+  }
+}
+```
+
+### Fast-Paced, High Consumption
+```json
+{
+  "resources": {
+    "ageConsumptionConstant": 200,
+    "defaultConsumptionRate": 5,
+    "maxTotalResources": 2000,
+    "replenishmentRate": 2000
+  },
+  "genetics": {
+    "properties": {
+      "consumptionRate": {
+        "min": 3,
+        "max": 10,
+        "default": 5
+      }
+    }
   }
 }
 ```
@@ -152,23 +263,12 @@ You can configure how many genetic attributes each Piro has:
 ```json
 {
   "genetics": {
-    "numberOfAttributes": 6,
+    "numberOfAttributes": 8,
     "mutationRate": 0.001,
     "mutationStrength": 0.02
   },
   "variants": {
     "groupingPrecision": 1
-  }
-}
-```
-
-### Many Attributes
-```json
-{
-  "genetics": {
-    "numberOfAttributes": 12,
-    "mutationRate": 0.005,
-    "mutationStrength": 0.03
   }
 }
 ```

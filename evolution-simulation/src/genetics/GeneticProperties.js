@@ -12,7 +12,9 @@ export const PROPERTY_BOUNDS = {
   strength: { min: 0, max: 1 },
   mutationChance: { min: 0, max: 1 },
   intelligence: { min: 0, max: 1 },
-  resourceEfficiency: { min: 0, max: 1 }
+  resourceEfficiency: { min: 0, max: 1 },
+  consumptionRate: { min: 1, max: 10 },
+  utilizationFactor: { min: 0.1, max: 1.0 }
 };
 
 // Default values when not configured
@@ -22,7 +24,9 @@ export const DEFAULT_VALUES = {
   strength: 0.5,
   mutationChance: 0.1,
   intelligence: 0.5,
-  resourceEfficiency: 0.5
+  resourceEfficiency: 0.5,
+  consumptionRate: 3,
+  utilizationFactor: 0.5
 };
 
 /**

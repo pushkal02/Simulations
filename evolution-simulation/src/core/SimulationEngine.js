@@ -6,6 +6,7 @@
  */
 
 import { Population } from './Population.js';
+import { ResourceManager } from './ResourceManager.js';
 import { applyInteractions } from '../genetics/PropertyInteractions.js';
 import { attemptReproduction } from '../genetics/Reproduction.js';
 import { applySurvivalCheck, applyNaturalDeath } from '../survival/SurvivalCalculator.js';
@@ -57,9 +58,13 @@ export class SimulationEngine {
       throw new Error(`Population initialization failed: ${error.message}`);
     }
     
+    // Initialize resource manager
+    this.resourceManager = new ResourceManager(config);
+    
     // Track births and deaths for statistics
     this.birthsThisGeneration = 0;
     this.deathsThisGeneration = 0;
+    this.generation = 0;
   }
 
   /**
@@ -76,7 +81,9 @@ export class SimulationEngine {
       strength: props.strength?.default || 0.5,
       mutationChance: props.mutationChance?.default || 0.1,
       intelligence: props.intelligence?.default || 0.5,
-      resourceEfficiency: props.resourceEfficiency?.default || 0.5
+      resourceEfficiency: props.resourceEfficiency?.default || 0.5,
+      consumptionRate: props.consumptionRate?.default || 3,
+      utilizationFactor: props.utilizationFactor?.default || 0.5
     };
   }
 
@@ -178,6 +185,9 @@ export class SimulationEngine {
    */
   processGeneration() {
     try {
+      // Increment generation counter
+      this.generation++;
+      
       // Reset generation counters
       this.birthsThisGeneration = 0;
       this.deathsThisGeneration = 0;
@@ -194,53 +204,46 @@ export class SimulationEngine {
         return;
       }
       
-      // 1. Apply property interactions to all Piros
-      for (const piro of allPiros) {
-        try {
-          applyInteractions(piro, this.config);
-          
-          // Validate Piro state after interactions
-          this._validatePiroState(piro);
-        } catch (error) {
-          console.error(`Error applying interactions to Piro ${piro.id}: ${error.message}`);
-          // Mark Piro as dead to remove it safely
-          piro.isAlive = false;
-        }
-      }
+      // 1. Replenish global resources
+      this.resourceManager.replenish();
       
-      // 2. Process resource gathering for all Piros
+      // 2. Distribute resources to all Piros based on strength
+      this.resourceManager.distributeResources(allPiros);
+      
+      // 3. All Piros tick (age, consume resources, update timers)
       for (const piro of allPiros) {
         try {
           if (piro.isAlive) {
-            piro.gatherResources(this.config);
+            piro.tick();
             
-            // Prevent resource overflow
-            const maxResources = 10000; // Reasonable upper limit
-            if (piro.resources > maxResources) {
-              console.warn(`Piro ${piro.id} resources capped at ${maxResources}`);
-              piro.resources = maxResources;
+            // Check for death from starvation or age
+            if (piro.shouldDieFromStarvation() || piro.shouldDieFromAge()) {
+              piro.isAlive = false;
+              this.deathsThisGeneration++;
             }
           }
         } catch (error) {
-          console.error(`Error gathering resources for Piro ${piro.id}: ${error.message}`);
+          console.error(`Error processing tick for Piro ${piro.id}: ${error.message}`);
           piro.isAlive = false;
+          this.deathsThisGeneration++;
         }
       }
       
-      // 3. Consume resources for survival
-      const consumptionRate = this.config.resources?.consumptionRate || 5;
+      // 4. Apply property interactions to all living Piros
       for (const piro of allPiros) {
         try {
           if (piro.isAlive) {
-            piro.consumeResources(consumptionRate);
+            applyInteractions(piro, this.config);
+            this._validatePiroState(piro);
           }
         } catch (error) {
-          console.error(`Error consuming resources for Piro ${piro.id}: ${error.message}`);
+          console.error(`Error applying interactions to Piro ${piro.id}: ${error.message}`);
           piro.isAlive = false;
+          this.deathsThisGeneration++;
         }
       }
       
-      // 4. Process reproduction attempts
+      // 5. Process reproduction attempts
       const maxPopulation = this.config.simulation?.maxPopulation || 1000;
       for (const piro of allPiros) {
         try {

@@ -28,27 +28,70 @@ export class Piro {
     this.config = config;
     this.variantId = this.generateVariantId();
     this.age = 0;
-    
-    const initialAmount = config.resources?.initialAmount;
-    if (initialAmount === undefined || initialAmount < 0) {
-      throw new Error(`Invalid initial resource amount: ${initialAmount}`);
-    }
-    this.resources = initialAmount;
+    this.resources = 0; // Piros start with no resources
     
     if (!Number.isFinite(this.genetics.replicationRate) || this.genetics.replicationRate <= 0) {
       throw new Error(`Invalid replication rate: ${this.genetics.replicationRate}`);
     }
     this.replicationTimer = this.genetics.replicationRate;
     this.isAlive = true;
+    
+    // Calculate max age based on consumption rate
+    this.maxAge = this.calculateMaxAge();
+  }
+  
+  /**
+   * Calculate maximum age based on consumption rate
+   * Age × Consumption = Constant (default 300)
+   * @returns {number} - Maximum age for this Piro
+   */
+  calculateMaxAge() {
+    const ageConsumptionConstant = this.config.resources?.ageConsumptionConstant || 300;
+    const consumptionRate = this.genetics.consumptionRate || 3;
+    return Math.floor(ageConsumptionConstant / consumptionRate);
+  }
+  
+  /**
+   * Calculate effective strength based on consumption rate
+   * Higher consumption = higher strength
+   * @returns {number} - Effective strength (0-1)
+   */
+  getEffectiveStrength() {
+    const baseStrength = this.genetics.strength || 0.5;
+    const consumptionRate = this.genetics.consumptionRate || 3;
+    const maxConsumption = 10; // From config bounds
+    
+    // Strength scales with consumption rate
+    const consumptionBonus = consumptionRate / maxConsumption;
+    return Math.min(1, baseStrength * (0.5 + 0.5 * consumptionBonus));
   }
 
   /**
    * Advance one generation cycle
-   * Updates age and decrements replication timer
+   * Updates age, consumes resources, and decrements replication timer
    */
   tick() {
     this.age++;
+    
+    // Consume resources based on consumption rate
+    const consumptionRate = this.genetics.consumptionRate || 3;
+    this.resources = Math.max(0, this.resources - consumptionRate);
+    
     this.replicationTimer = Math.max(0, this.replicationTimer - 1);
+  }
+  
+  /**
+   * Absorb resources from the environment
+   * Only a fraction (utilizationFactor) is actually used by the Piro
+   * All absorbed resources are removed from the system
+   * @param {number} amount - Amount of resources absorbed
+   * @returns {number} - Amount actually utilized
+   */
+  absorbResources(amount) {
+    const utilizationFactor = this.genetics.utilizationFactor || 0.5;
+    const utilized = amount * utilizationFactor;
+    this.resources += utilized;
+    return amount; // Return total absorbed (removed from system)
   }
 
   /**
@@ -57,8 +100,24 @@ export class Piro {
    * @returns {boolean} - True if ready to reproduce
    */
   canReproduce(config) {
-    const reproductionCost = config.resources?.reproductionCost || 50;
+    const reproductionCost = config.reproduction?.reproductionCost || 50;
     return this.replicationTimer <= 0 && this.resources >= reproductionCost;
+  }
+  
+  /**
+   * Check if Piro should die from old age
+   * @returns {boolean} - True if age exceeds maximum
+   */
+  shouldDieFromAge() {
+    return this.age >= this.maxAge;
+  }
+  
+  /**
+   * Check if Piro should die from starvation
+   * @returns {boolean} - True if no resources left
+   */
+  shouldDieFromStarvation() {
+    return this.resources <= 0;
   }
 
   /**

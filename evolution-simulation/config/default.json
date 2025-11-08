@@ -5,15 +5,25 @@
     "maxPopulation": 1000,
     "initialMode": "randomized"
   },
+  "resources": {
+    "maxTotalResources": 1000,
+    "replenishmentRate": 1000,
+    "defaultConsumptionRate": 3,
+    "consumptionCanMutate": true,
+    "utilizationCanMutate": true,
+    "ageConsumptionConstant": 300
+  },
   "genetics": {
-    "numberOfAttributes": 6,
+    "numberOfAttributes": 8,
     "attributeNames": [
       "replicationRate",
       "attractiveness",
       "strength",
       "mutationChance",
       "intelligence",
-      "resourceEfficiency"
+      "resourceEfficiency",
+      "consumptionRate",
+      "utilizationFactor"
     ],
     "properties": {
       "replicationRate": {
@@ -45,6 +55,16 @@
         "min": 0,
         "max": 1,
         "default": 0.5
+      },
+      "consumptionRate": {
+        "min": 1,
+        "max": 10,
+        "default": 3
+      },
+      "utilizationFactor": {
+        "min": 0.1,
+        "max": 1.0,
+        "default": 0.5
       }
     },
     "mutationStrength": 0.05,
@@ -53,13 +73,6 @@
   "variants": {
     "groupingPrecision": 2,
     "useValueBasedId": true
-  },
-  "resources": {
-    "initialAmount": 100,
-    "gatherRate": 10,
-    "consumptionRate": 5,
-    "reproductionCost": 50,
-    "starvationThreshold": 0
   },
   "lifespan": {
     "baseLifespan": 100,

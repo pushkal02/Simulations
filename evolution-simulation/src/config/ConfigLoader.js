@@ -79,12 +79,9 @@ function validateConfig(config) {
     'simulation.initialPopulation',
     'simulation.cyclesPerSecond',
     'genetics.properties',
-    'resources.initialAmount',
-    'resources.gatherRate',
-    'resources.consumptionRate',
-    'resources.reproductionCost',
-    'lifespan.baseLifespan',
-    'survival.threshold'
+    'resources.maxTotalResources',
+    'resources.replenishmentRate',
+    'resources.ageConsumptionConstant'
   ];
   
   // Check for missing required parameters
@@ -135,27 +132,14 @@ function validateConfig(config) {
   }
   
   // Validate resource values
-  if (config.resources.initialAmount < 0) {
-    throw new Error(`Invalid initialAmount: must be non-negative, got ${config.resources.initialAmount}`);
+  if (config.resources.maxTotalResources < 1) {
+    throw new Error(`Invalid maxTotalResources: must be at least 1, got ${config.resources.maxTotalResources}`);
   }
-  if (config.resources.gatherRate < 0) {
-    throw new Error(`Invalid gatherRate: must be non-negative, got ${config.resources.gatherRate}`);
+  if (config.resources.replenishmentRate < 0) {
+    throw new Error(`Invalid replenishmentRate: must be non-negative, got ${config.resources.replenishmentRate}`);
   }
-  if (config.resources.consumptionRate < 0) {
-    throw new Error(`Invalid consumptionRate: must be non-negative, got ${config.resources.consumptionRate}`);
-  }
-  if (config.resources.reproductionCost < 0) {
-    throw new Error(`Invalid reproductionCost: must be non-negative, got ${config.resources.reproductionCost}`);
-  }
-  
-  // Validate lifespan
-  if (config.lifespan.baseLifespan < 1) {
-    throw new Error(`Invalid baseLifespan: must be at least 1, got ${config.lifespan.baseLifespan}`);
-  }
-  
-  // Validate survival threshold
-  if (config.survival.threshold < 0 || config.survival.threshold > 1) {
-    throw new Error(`Invalid survival threshold: must be between 0 and 1, got ${config.survival.threshold}`);
+  if (config.resources.ageConsumptionConstant < 1) {
+    throw new Error(`Invalid ageConsumptionConstant: must be at least 1, got ${config.resources.ageConsumptionConstant}`);
   }
   
   return true;
