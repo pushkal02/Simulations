@@ -2,6 +2,16 @@
 
 A JavaScript-based evolution simulation system that models natural selection and genetic inheritance among beings called "Piros". Watch as populations evolve over generations through reproduction, mutation, and survival pressures.
 
+## 🌐 Web Dashboard Available!
+
+Experience the simulation with a beautiful real-time dashboard:
+```bash
+npm run web
+```
+Then open `http://localhost:3000` in your browser.
+
+See [WEB_DASHBOARD.md](WEB_DASHBOARD.md) for the complete guide.
+
 ## Features
 
 - **Genetic Inheritance**: Piros pass traits to offspring with variation and mutation
@@ -29,6 +39,26 @@ cd evolution-simulation
 
 ### Running the Simulation
 
+#### Web Dashboard (Recommended)
+
+```bash
+# Start the web server
+npm run web
+
+# Then open your browser to:
+# http://localhost:3000
+```
+
+The web dashboard provides:
+- Real-time visualization of population statistics
+- Interactive charts showing evolution over time
+- Live genetic trait tracking
+- Population distribution by variant
+- Event log with important milestones
+- Interactive controls (start, pause, reset, speed adjustment)
+
+#### Command Line Interface
+
 ```bash
 # Run with default configuration
 node src/index.js
@@ -50,6 +80,41 @@ Once the simulation is running, use these commands:
 - **`i`** - Show current statistics (population, variants, genetics)
 - **`h`** - Show history of last 10 generations
 - **`q`** - Quit the simulation
+
+## Web Dashboard Features
+
+The web dashboard provides a comprehensive real-time view of your simulation:
+
+### Live Statistics
+- **Total Population**: Current number of living Piros
+- **Unique Variants**: Number of distinct genetic lineages
+- **Births/Deaths**: Generation-by-generation tracking
+- **Average Resources**: Population resource levels
+- **Average Age**: Mean age of the population
+
+### Interactive Charts
+1. **Population Over Time**: Line chart showing total population and variant count across generations
+2. **Top 10 Variants**: Bar chart displaying the most successful genetic lineages
+3. **Genetic Traits Over Time**: Multi-line chart tracking evolution of all six genetic properties
+
+### Genetic Property Bars
+Real-time visualization of average values for:
+- Replication Rate
+- Attractiveness
+- Strength
+- Mutation Chance
+- Intelligence
+- Resource Efficiency
+
+### Controls
+- **Start/Pause**: Control simulation execution
+- **Reset**: Restart with fresh population
+- **Speed Slider**: Adjust from 1-100 cycles per second
+- **Event Log**: Track important events and milestones
+
+### Browser Requirements
+- Modern browser with JavaScript enabled
+- Recommended: Chrome, Firefox, Safari, or Edge (latest versions)
 
 ## Understanding the Simulation
 

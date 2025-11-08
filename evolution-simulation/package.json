@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node src/index.js --config config/default.json"
+    "dev": "node src/index.js --config config/default.json",
+    "web": "node server.js",
+    "test": "node test-engine.js"
   },
   "keywords": [
     "evolution",
@@ -17,6 +19,6 @@
   "author": "",
   "license": "MIT",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   }
 }
