@@ -79,7 +79,12 @@
   - Add calculateMutationBonus() for intelligent Piros
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 7. Implement survival calculation system
+- [x] 7. Implement survival calculation system
+
+
+
+
+
   - Create SurvivalCalculator module
   - Implement calculateSurvivability() combining genetics and resources
   - Add weightedSurvivalScore() to combine strength, intelligence, and resources
