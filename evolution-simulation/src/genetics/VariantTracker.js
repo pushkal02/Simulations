@@ -2,10 +2,8 @@
  * VariantTracker Module
  * 
  * Tracks unique genetic variants in the population.
- * A variant is a unique combination of genetic properties identified by a hash.
+ * A variant is a unique combination of genetic properties identified by rounded values.
  */
-
-import crypto from 'crypto';
 
 /**
  * Storage for all registered genetic variants
@@ -16,23 +14,23 @@ const variants = new Map();
 
 /**
  * Generate a unique variant identifier from genetic properties
- * Creates a hash of the genetics object to identify Piros with identical genetics
+ * Creates an ID based on rounded genetic values to group similar individuals
  * 
  * @param {Object} genetics - Genetic properties object
- * @returns {string} - Hash identifier for this genetic variant
+ * @param {number} precision - Decimal places for rounding (default: 2)
+ * @returns {string} - Value-based identifier for this genetic variant
  */
-export function generateVariantId(genetics) {
-  // Sort properties to ensure consistent hashing
-  const sortedGenetics = Object.keys(genetics)
-    .sort()
-    .reduce((acc, key) => {
-      // Round to 4 decimal places to group similar genetics
-      acc[key] = Math.round(genetics[key] * 10000) / 10000;
-      return acc;
-    }, {});
+export function generateVariantId(genetics, precision = 2) {
+  // Sort properties to ensure consistent ID generation
+  const sortedKeys = Object.keys(genetics).sort();
   
-  const geneticsString = JSON.stringify(sortedGenetics);
-  return crypto.createHash('md5').update(geneticsString).digest('hex').substr(0, 8);
+  // Round each value and create ID string
+  const roundedValues = sortedKeys.map(key => {
+    const value = genetics[key];
+    return value.toFixed(precision);
+  });
+  
+  return roundedValues.join('-');
 }
 
 /**

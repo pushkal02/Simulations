@@ -6,6 +6,15 @@
     "initialMode": "randomized"
   },
   "genetics": {
+    "numberOfAttributes": 6,
+    "attributeNames": [
+      "replicationRate",
+      "attractiveness",
+      "strength",
+      "mutationChance",
+      "intelligence",
+      "resourceEfficiency"
+    ],
     "properties": {
       "replicationRate": {
         "min": 0,
@@ -38,8 +47,12 @@
         "default": 0.5
       }
     },
-    "mutationStrength": 0.1,
+    "mutationStrength": 0.05,
     "inheritanceVariation": 0.05
+  },
+  "variants": {
+    "groupingPrecision": 2,
+    "useValueBasedId": true
   },
   "resources": {
     "initialAmount": 100,
@@ -69,7 +82,8 @@
     "mutationBonusThreshold": 0.7
   },
   "mutation": {
-    "perPropertyProbability": 0.15,
-    "mutationStrength": 0.1
+    "perPropertyProbability": 0.01,
+    "mutationStrength": 0.05,
+    "independentMutation": true
   }
 }

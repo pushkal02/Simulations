@@ -5,8 +5,6 @@
  * resources, and lifecycle management.
  */
 
-import crypto from 'crypto';
-
 export class Piro {
   /**
    * Create a new Piro entity
@@ -27,6 +25,7 @@ export class Piro {
     
     this.id = id || `piro_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     this.genetics = { ...genetics };
+    this.config = config;
     this.variantId = this.generateVariantId();
     this.age = 0;
     
@@ -105,26 +104,27 @@ export class Piro {
 
   /**
    * Generate a unique variant identifier from genetic properties
-   * Creates a hash of the genetics object to identify Piros with identical genetics
-   * @returns {string} - Hash identifier for this genetic variant
+   * Creates an ID based on rounded genetic values to group similar individuals
+   * @returns {string} - Value-based identifier for this genetic variant
    */
   generateVariantId() {
     try {
-      // Sort properties to ensure consistent hashing
-      const sortedGenetics = Object.keys(this.genetics)
-        .sort()
-        .reduce((acc, key) => {
-          // Round to 4 decimal places to group similar genetics
-          const value = this.genetics[key];
-          if (!Number.isFinite(value)) {
-            throw new Error(`Invalid genetic value for ${key}: ${value}`);
-          }
-          acc[key] = Math.round(value * 10000) / 10000;
-          return acc;
-        }, {});
+      // Get precision from config, default to 2
+      const precision = this.config?.variants?.groupingPrecision ?? 2;
       
-      const geneticsString = JSON.stringify(sortedGenetics);
-      return crypto.createHash('md5').update(geneticsString).digest('hex').substring(0, 8);
+      // Sort properties to ensure consistent ID generation
+      const sortedKeys = Object.keys(this.genetics).sort();
+      
+      // Round each value and create ID string
+      const roundedValues = sortedKeys.map(key => {
+        const value = this.genetics[key];
+        if (!Number.isFinite(value)) {
+          throw new Error(`Invalid genetic value for ${key}: ${value}`);
+        }
+        return value.toFixed(precision);
+      });
+      
+      return roundedValues.join('-');
     } catch (error) {
       console.error(`Error generating variant ID: ${error.message}`);
       // Return a random ID as fallback
