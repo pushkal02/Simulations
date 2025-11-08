@@ -1,0 +1,22 @@
+{
+  "name": "evolution-simulation",
+  "version": "1.0.0",
+  "description": "A JavaScript-based evolution simulation system that models natural selection and genetic inheritance among beings called Piros",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js --config config/default.json"
+  },
+  "keywords": [
+    "evolution",
+    "simulation",
+    "genetics",
+    "natural-selection"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "simulation": {
+    "initialPopulation": 100,
+    "cyclesPerSecond": 10,
+    "maxPopulation": 1000,
+    "initialMode": "randomized"
+  },
+  "genetics": {
+    "properties": {
+      "replicationRate": {
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      },
+      "attractiveness": {
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      },
+      "strength": {
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      },
+      "mutationChance": {
+        "min": 0,
+        "max": 1,
+        "default": 0.1
+      },
+      "intelligence": {
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      },
+      "resourceEfficiency": {
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      }
+    },
+    "mutationStrength": 0.1,
+    "inheritanceVariation": 0.05
+  },
+  "resources": {
+    "initialAmount": 100,
+    "gatherRate": 10,
+    "consumptionRate": 5,
+    "reproductionCost": 50,
+    "starvationThreshold": 0
+  },
+  "lifespan": {
+    "baseLifespan": 100,
+    "lifespanVariation": 20
+  },
+  "reproduction": {
+    "spawnRandomness": 0.2,
+    "attractivenessWeight": 0.7
+  },
+  "survival": {
+    "threshold": 0.3,
+    "strengthWeight": 0.6,
+    "intelligenceWeight": 0.4,
+    "randomFactor": 0.1
+  },
+  "interactions": {
+    "attractivenessFromStrength": 0.4,
+    "attractivenessFromIntelligence": 0.3,
+    "replicationPenaltyThreshold": 0.3,
+    "mutationBonusThreshold": 0.7
+  },
+  "mutation": {
+    "perPropertyProbability": 0.15,
+    "mutationStrength": 0.1
+  }
+}
