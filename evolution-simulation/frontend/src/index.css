@@ -4,13 +4,13 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen;
+    @apply bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-200;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6;
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-200;
   }
   
   .btn {
@@ -28,4 +28,45 @@
   .btn-danger {
     @apply bg-red-600 text-white hover:bg-red-700 active:scale-95;
   }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input[type="range"] {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effects */
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
