@@ -46,7 +46,7 @@ class SimulationAPI {
    * Initialize the simulation
    */
   async init() {
-    const response = await apiClient.post('/init');
+    const response = await apiClient.get('/api/init');
     return response.data;
   }
 
@@ -54,7 +54,7 @@ class SimulationAPI {
    * Start the simulation
    */
   async start() {
-    const response = await apiClient.post('/start');
+    const response = await apiClient.post('/api/start');
     return response.data;
   }
 
@@ -62,7 +62,7 @@ class SimulationAPI {
    * Pause the simulation
    */
   async pause() {
-    const response = await apiClient.post('/pause');
+    const response = await apiClient.post('/api/pause');
     return response.data;
   }
 
@@ -70,7 +70,7 @@ class SimulationAPI {
    * Reset the simulation
    */
   async reset() {
-    const response = await apiClient.post('/reset');
+    const response = await apiClient.post('/api/reset');
     return response.data;
   }
 
@@ -79,7 +79,7 @@ class SimulationAPI {
    * @param {number} speed - Cycles per second (1-100)
    */
   async setSpeed(speed) {
-    const response = await apiClient.post('/speed', { speed });
+    const response = await apiClient.post('/api/speed', { speed });
     return response.data;
   }
 
@@ -87,7 +87,7 @@ class SimulationAPI {
    * Get current statistics
    */
   async getStats() {
-    const response = await apiClient.get('/stats');
+    const response = await apiClient.get('/api/stats');
     return response.data;
   }
 
@@ -95,7 +95,7 @@ class SimulationAPI {
    * Get simulation status
    */
   async getStatus() {
-    const response = await apiClient.get('/status');
+    const response = await apiClient.get('/api/status');
     return response.data;
   }
 }

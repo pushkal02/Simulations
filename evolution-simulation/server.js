@@ -224,6 +224,18 @@ function handleApiRequest(req, res, pathname) {
     return;
   }
   
+  if (pathname === '/api/status' && req.method === 'GET') {
+    const status = {
+      isRunning,
+      speed: config?.simulation?.cyclesPerSecond || 10,
+      generation: engine?.generation || 0,
+      initialized: engine !== null
+    };
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(status));
+    return;
+  }
+  
   // Unknown API endpoint
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'API endpoint not found' }));
