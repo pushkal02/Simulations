@@ -66,7 +66,12 @@
   - Add applyInheritanceVariation() for small random changes
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.8, 2.9_
 
-- [ ] 6. Implement property interactions system
+- [x] 6. Implement property interactions system
+
+
+
+
+
   - Create PropertyInteractions module
   - Implement applyInteractions() to update Piro properties
   - Add calculateAttractivenessModifier() based on strength and intelligence
