@@ -107,7 +107,12 @@
   - Implement getVariantPopulation() to count Piros per variant
   - _Requirements: 7.6, 9.7_
 
-- [ ] 9. Implement population management
+- [x] 9. Implement population management
+
+
+
+
+
   - Create Population class
   - Implement constructor to create initial population with base genetics
   - Add methods: add(), remove(), getAll(), getByVariant(), size()
